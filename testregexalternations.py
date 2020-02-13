@@ -4,7 +4,7 @@ import re
 
 def dyn_named_reg_maker(*alts):
     """
-    Dynamic named alternation Regex Maker
+    Dynamic named capture alternations Regex Maker
     For quickly visualizing how a range of values tested against a 
     Regex, which is made up of several alternations, behaves
     *alts -- dynamic number of Regex alternations passed to the function
