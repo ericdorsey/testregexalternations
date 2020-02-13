@@ -2,79 +2,62 @@
 
 import re
 
-#reg = r"(?P<first_alt>2[0-4]\d)|(?P<second_alt>25[0-5])"
-#reg = r"(2[0-4]\d)|(25[0-5])"
-
-# first part of the alternation
+# first alternation to pass to dyn_named_reg_maker()
 first_alt = r"2[0-4]\d"
 
-# second part of the alternation
+# second alternation to pass to dyn_named_reg_maker()
 second_alt = r"25[0-5]"
-
-first_alt_label = "first_alt"
-second_alt_label = "second_alt"
-
-def named_reg_maker(first_alt, second_alt):
-    full_reg = rf"(?P<{first_alt_label}>{first_alt})|(?P<{second_alt_label}>{second_alt})"
-    return full_reg
 
 def dyn_named_reg_maker(*alts):
     """
-    Dynamic Named Regex Maker
-    alts: two or more Regex alternations
+    Dynamic named alternation Regex Maker
+    For quickly visualizng how a range of values tested against a Regex
+    made up of several alternations behave
+    *alts: Regex alternations passed to the function
     """
+    # gets filled out with the full named captures Regex
     full_reg = rf""
+    # gets filled out with the same Regex, but un-named captures
     full_plain_reg = rf""
+    # mapping of labels like "label0", "label1" etc to Regexes
+    # between each alternation, ie between each ("|"), 
     reg_to_label_map = {}
     for i, v in enumerate(alts):
-        # { "someregex": "0", "anotherregex" : "1", etc.. }
-        print(i, v)
-        #reg_to_label_map[v] = f"label{i}"
+        # { "label0" : "someregex passed to *alts"} ..
         reg_to_label_map[f"label{i}"] = v
     for k, v in reg_to_label_map.items():
-        print(k, v)
-        #full_reg += rf"(?P<{v}>{k})"
+        # (P<label0>someregex) ...
         full_reg += rf"(?P<{k}>{v})"
         full_plain_reg += rf"({v})"
-    print(full_reg)
-    # add the alternation metacharacter
+    # add the alternation metacharacter between )( 
+    # ie, after the end of one capture group, and before the next
     full_reg = re.sub(r"\)\(", r")|(", full_reg) 
     full_plain_reg = re.sub(r"\)\(", r")|(", full_plain_reg) 
-    print(full_reg)
+
     return [full_reg, reg_to_label_map, full_plain_reg]
 
 #reg = named_reg_maker(first_alt, second_alt)
 reg = dyn_named_reg_maker(first_alt, second_alt)
-print(reg)
 
 # compiled regex
 creg = re.compile(reg[0])
 
-#[print(m) for m in range(0, 256) if creg.search(str(m))]
-#[print(m) for m in range(0, 256) if creg.findall(str(m))]
-#for i in range(0, 256):
-#    match = creg.match(str(i))
-#    if match:
-#        if match[first_alt_label]:
-#            print(f"{i} matches {first_alt}")
-#        if match[second_alt_label]:
-#            print(f"{i} matches {second_alt}")
-        #print(match.groupdict())
-for i in range(198, 256):
-    #print(f"i is {i}")
+for i in range(220, 256):
     match = creg.match(str(i))
     if match:
-        # something like .. match is <_sre.SRE_Match object; span=(0, 3), match='251'>
+        # loop through the reg_to_label_map created in dyn_named_reg_maker()
+        # which associates each key with one part of the Regex alternation
         for k, v in reg[1].items():
-            #print(k, v)
+            # if the "label0" type key in the reg_to_label_map is in 
+            # the match object (and we know it is, since this is all
+            # under "if match:"), print the associated value, which 
+            # is the part of the Regex alternation that matched
             if match[k]:
-                #print(f"plain: {reg[2]}")
-                #print(f"named: {reg[0]}")
+                # print what was checked against the Regex, and the value 
+                # from that key; ie, print the Regex alternation that matched
                 print(f"{i} matches {reg[1][k]}")
-                #print(f"{i} matches {reg[2][k]}")
        
-print() 
+print()
+print("Regex tested against:")
 print(f"plain: {reg[2]}")
 print(f"named: {reg[0]}")
-                
-                
