@@ -1,3 +1,13 @@
+## What
+For testing behavior of a range of values against a Regex that is made up
+of a variable number of capturing alternations.
+
+ie, is this Regex `(2[0-4]\d)|(25[0-5])` matching all values between `220-255`?
+
+Which parts of the alternations is each value matching?
+
+Let's check: 
+
 
 ```bash
 user@box:~$ ./testregexalternations.py
