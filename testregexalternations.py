@@ -2,22 +2,16 @@
 
 import re
 
-# first alternation to pass to dyn_named_reg_maker()
-first_alt = r"2[0-4]\d"
-
-# second alternation to pass to dyn_named_reg_maker()
-second_alt = r"25[0-5]"
-
 def dyn_named_reg_maker(*alts):
     """
     Dynamic named alternation Regex Maker
-    For quickly visualizng how a range of values tested against a Regex
-    made up of several alternations behave
-    *alts: Regex alternations passed to the function
+    For quickly visualizing how a range of values tested against a 
+    Regex, which is made up of several alternations, behaves
+    *alts -- dynamic number of Regex alternations passed to the function
     """
-    # gets filled out with the full named captures Regex
+    # this gets filled out with the full named captures Regex
     full_reg = rf""
-    # gets filled out with the same Regex, but un-named captures
+    # this gets filled out with the same Regex, but un-named captures
     full_plain_reg = rf""
     # mapping of labels like "label0", "label1" etc to Regexes
     # between each alternation, ie between each ("|"), 
@@ -36,13 +30,22 @@ def dyn_named_reg_maker(*alts):
 
     return [full_reg, reg_to_label_map, full_plain_reg]
 
-#reg = named_reg_maker(first_alt, second_alt)
+# first alternation to pass to dyn_named_reg_maker()
+first_alt = r"2[0-4]\d"
+
+# second alternation to pass to dyn_named_reg_maker()
+second_alt = r"25[0-5]"
+
+# create the regex
 reg = dyn_named_reg_maker(first_alt, second_alt)
 
 # compiled regex
 creg = re.compile(reg[0])
 
-for i in range(220, 256):
+# iterable collection to test against the above compiled regex
+iterable_to_test = range(220,256)
+
+for i in iterable_to_test:
     match = creg.match(str(i))
     if match:
         # loop through the reg_to_label_map created in dyn_named_reg_maker()
@@ -56,8 +59,10 @@ for i in range(220, 256):
                 # print what was checked against the Regex, and the value 
                 # from that key; ie, print the Regex alternation that matched
                 print(f"{i} matches {reg[1][k]}")
+    else:
+        print(f"{i} does NOT match")
        
 print()
 print("Regex tested against:")
-print(f"plain: {reg[2]}")
-print(f"named: {reg[0]}")
+print(f"non-named captures: {reg[2]}")
+print(f"named captures: {reg[0]}")
